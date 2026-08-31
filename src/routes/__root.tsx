@@ -77,21 +77,45 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "FinWorldNews — Breaking global financial news" },
+      { name: "description", content: SITE.description },
+      { name: "author", content: "FinWorldNews" },
+      { name: "theme-color", content: "#0b1533" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "FinWorldNews" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "NewsMediaOrganization",
+          name: "FinWorldNews",
+          description: SITE.description,
+          logo: "/apple-touch-icon.png",
+          knowsAbout: [
+            "global financial markets",
+            "stock markets",
+            "central bank policy",
+            "commodities",
+            "foreign exchange",
+            "digital assets",
+          ],
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -119,8 +143,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+        <BreakingTicker items={breakingArticles.map((a) => a.title)} />
+        <main className="flex-1">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+        <SiteFooter />
+      </div>
     </QueryClientProvider>
   );
 }
+
