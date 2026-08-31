@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as MarketsIndexRouteImport } from './routes/markets.index'
+import { Route as MarketsMarketRouteImport } from './routes/markets.$market'
+import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketsIndexRoute = MarketsIndexRouteImport.update({
+  id: '/markets/',
+  path: '/markets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketsMarketRoute = MarketsMarketRouteImport.update({
+  id: '/markets/$market',
+  path: '/markets/$market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/trending': typeof TrendingRoute
+  '/markets/$market': typeof MarketsMarketRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/markets/': typeof MarketsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/trending': typeof TrendingRoute
+  '/markets/$market': typeof MarketsMarketRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/markets': typeof MarketsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/trending': typeof TrendingRoute
+  '/markets/$market': typeof MarketsMarketRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/markets/': typeof MarketsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/trending'
+    | '/markets/$market'
+    | '/news/$slug'
+    | '/markets/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/trending'
+    | '/markets/$market'
+    | '/news/$slug'
+    | '/markets'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/trending'
+    | '/markets/$market'
+    | '/news/$slug'
+    | '/markets/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  TrendingRoute: typeof TrendingRoute
+  MarketsMarketRoute: typeof MarketsMarketRoute
+  NewsSlugRoute: typeof NewsSlugRoute
+  MarketsIndexRoute: typeof MarketsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/markets/': {
+      id: '/markets/'
+      path: '/markets'
+      fullPath: '/markets/'
+      preLoaderRoute: typeof MarketsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/markets/$market': {
+      id: '/markets/$market'
+      path: '/markets/$market'
+      fullPath: '/markets/$market'
+      preLoaderRoute: typeof MarketsMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  TrendingRoute: TrendingRoute,
+  MarketsMarketRoute: MarketsMarketRoute,
+  NewsSlugRoute: NewsSlugRoute,
+  MarketsIndexRoute: MarketsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
