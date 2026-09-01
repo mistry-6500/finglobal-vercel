@@ -1,18 +1,35 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, Zap } from "lucide-react";
+import { Flame, Zap, ArrowUpRight } from "lucide-react";
 
-import { formatDate, marketName, type Article } from "@/data/news";
+import { formatStamp, marketLabel, relativeTime, type NewsItem } from "@/lib/live-news";
+
+function Headline({ item, className }: { item: NewsItem; className: string }) {
+  const linkClass = `${className} after:absolute after:inset-0 after:content-['']`;
+  if (item.external) {
+    return (
+      <a href={item.url} target="_blank" rel="noopener noreferrer" className={linkClass}>
+        {item.title}
+        <ArrowUpRight className="ml-1 inline h-4 w-4 align-text-top text-muted-foreground" aria-hidden="true" />
+      </a>
+    );
+  }
+  return (
+    <Link to="/news/$slug" params={{ slug: item.url.replace("/news/", "") }} className={linkClass}>
+      {item.title}
+    </Link>
+  );
+}
 
 export function ArticleCard({
   article,
   featured = false,
 }: {
-  article: Article;
+  article: NewsItem;
   featured?: boolean;
 }) {
   return (
     <article
-      className={`group relative flex flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary ${
+      className={`group relative flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary ${
         featured ? "lg:p-7" : ""
       }`}
     >
@@ -22,7 +39,7 @@ export function ArticleCard({
           params={{ market: article.market }}
           className="eyebrow relative z-10 rounded-sm bg-secondary px-2 py-1 text-primary"
         >
-          {marketName(article.market)}
+          {marketLabel(article.market)}
         </Link>
         <span className="eyebrow text-muted-foreground">{article.topic}</span>
         {article.breaking ? (
@@ -40,25 +57,24 @@ export function ArticleCard({
       <h3
         className={`mt-3 font-semibold text-balance ${featured ? "text-2xl lg:text-3xl" : "text-lg"}`}
       >
-        <Link
-          to="/news/$slug"
-          params={{ slug: article.slug }}
-          className="after:absolute after:inset-0 after:content-['']"
-        >
-          {article.title}
-        </Link>
+        <Headline item={article} className="" />
       </h3>
 
-      <p className={`mt-2 text-sm text-muted-foreground ${featured ? "lg:text-base" : ""}`}>
-        {article.summary}
-      </p>
+      {article.summary ? (
+        <p
+          className={`mt-2 line-clamp-4 text-sm text-muted-foreground ${featured ? "lg:text-base" : ""}`}
+        >
+          {article.summary}
+        </p>
+      ) : null}
 
-      <time
-        dateTime={article.published}
-        className="mt-4 font-mono text-xs text-muted-foreground"
-      >
-        {formatDate(article.published)}
-      </time>
+      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 font-mono text-xs text-muted-foreground">
+        <time dateTime={article.published}>{formatStamp(article.published)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{relativeTime(article.published)}</span>
+        <span aria-hidden="true">·</span>
+        <span className="text-primary">{article.source}</span>
+      </div>
     </article>
   );
 }

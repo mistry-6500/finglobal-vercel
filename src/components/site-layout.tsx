@@ -9,10 +9,13 @@ import {
   Bitcoin,
   BarChart3,
   ArrowUpRight,
+  RefreshCw,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
-import { SITE, markets, formatDate, lastUpdated, type MarketSlug } from "@/data/news";
+import { SITE, markets, type MarketSlug } from "@/data/news";
+import { useLiveNews } from "@/hooks/use-live-news";
+import { formatStamp } from "@/lib/live-news";
 
 export const marketIcons: Record<MarketSlug, ComponentType<{ className?: string }>> = {
   "united-states": Landmark,
@@ -43,14 +46,31 @@ function Wordmark() {
 const navLinkClass =
   "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground";
 
+export function LiveStatus() {
+  const { isFetching, fetchedAt, live } = useLiveNews();
+  return (
+    <span className="eyebrow hidden items-center gap-1.5 text-muted-foreground sm:inline-flex">
+      <span
+        className={`h-2 w-2 rounded-full ${live ? "bg-bull" : "bg-muted-foreground"} ${isFetching ? "animate-pulse" : ""}`}
+        aria-hidden="true"
+      />
+      {live ? "Live" : "Cached"} · auto-refresh 2 min
+      {isFetching ? (
+        <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+      ) : fetchedAt ? (
+        <span className="hidden lg:inline">· {formatStamp(fetchedAt)}</span>
+      ) : null}
+    </span>
+  );
+}
+
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
         <Wordmark />
-        <span className="eyebrow hidden text-muted-foreground sm:inline">
-          Updated {formatDate(lastUpdated)}
-        </span>
+        <LiveStatus />
+
         <nav aria-label="Primary" className="ml-auto flex flex-wrap items-center gap-0.5">
           <Link to="/" className={navLinkClass} activeProps={{ className: "text-foreground bg-secondary" }} activeOptions={{ exact: true }}>
             Home
@@ -91,9 +111,11 @@ export function SiteHeader() {
   );
 }
 
-export function BreakingTicker({ items }: { items: string[] }) {
-  if (items.length === 0) return null;
-  const loop = [...items, ...items];
+export function BreakingTicker() {
+  const { items } = useLiveNews();
+  const headlines = items.slice(0, 10);
+  if (headlines.length === 0) return null;
+  const loop = [...headlines, ...headlines];
   return (
     <div className="flex items-center gap-3 overflow-hidden border-b border-border bg-secondary py-2">
       <span className="eyebrow ml-4 flex shrink-0 items-center gap-1.5 rounded-sm bg-bear px-2 py-1 text-background">
@@ -101,9 +123,20 @@ export function BreakingTicker({ items }: { items: string[] }) {
       </span>
       <div className="relative flex-1 overflow-hidden">
         <ul className="marquee-track flex w-max gap-10 whitespace-nowrap text-sm text-foreground">
-          {loop.map((t, i) => (
-            <li key={i} aria-hidden={i >= items.length}>
-              {t}
+          {loop.map((item, i) => (
+            <li key={`${item.id}-${i}`} aria-hidden={i >= headlines.length}>
+              {item.external ? (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary"
+                >
+                  {item.title}
+                </a>
+              ) : (
+                item.title
+              )}
             </li>
           ))}
         </ul>
@@ -111,6 +144,7 @@ export function BreakingTicker({ items }: { items: string[] }) {
     </div>
   );
 }
+
 
 export function SiteFooter() {
   return (

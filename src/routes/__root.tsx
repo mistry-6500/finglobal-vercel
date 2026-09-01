@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter, BreakingTicker } from "@/components/site-layout";
-import { SITE, breakingArticles } from "@/data/news";
+import { SITE } from "@/data/news";
 
 function NotFoundComponent() {
   return (
@@ -147,7 +147,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
-        <BreakingTicker items={breakingArticles.map((a) => a.title)} />
+        <BreakingTicker />
         <main className="flex-1">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
