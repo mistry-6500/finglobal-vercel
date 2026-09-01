@@ -76,8 +76,13 @@ async function fetchFeed(url: string, market: MarketSlug, source: string, topic:
   }
 }
 
+let cache: { result: LiveFeedResult; at: number } | null = null;
+const CACHE_MS = 60_000;
+
 /** Aggregate every configured feed into one deduplicated, newest-first list. */
 export async function fetchLiveNews(): Promise<LiveFeedResult> {
+  if (cache && Date.now() - cache.at < CACHE_MS) return cache.result;
+
   const jobs = (Object.entries(FEEDS) as [MarketSlug, (typeof FEEDS)[MarketSlug]][]).flatMap(
     ([market, feeds]) => feeds.map((f) => fetchFeed(f.url, market, f.source, f.topic)),
   );
