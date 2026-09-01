@@ -113,6 +113,12 @@ export async function fetchLiveNews(): Promise<LiveFeedResult> {
   }
 
   // Keep curated explainers available underneath the live wire.
-  const merged = [...items.slice(0, 120), ...fallbackItems];
-  return { items: merged, fetchedAt: new Date().toISOString(), live: true };
+  const result: LiveFeedResult = {
+    items: [...items.slice(0, 120), ...fallbackItems],
+    fetchedAt: new Date().toISOString(),
+    live: true,
+  };
+  cache = { result, at: Date.now() };
+  return result;
 }
+
