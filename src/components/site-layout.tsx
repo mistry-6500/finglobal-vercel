@@ -9,10 +9,13 @@ import {
   Bitcoin,
   BarChart3,
   ArrowUpRight,
+  RefreshCw,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
-import { SITE, markets, formatDate, lastUpdated, type MarketSlug } from "@/data/news";
+import { SITE, markets, type MarketSlug } from "@/data/news";
+import { useLiveNews } from "@/hooks/use-live-news";
+import { formatStamp } from "@/lib/live-news";
 
 export const marketIcons: Record<MarketSlug, ComponentType<{ className?: string }>> = {
   "united-states": Landmark,
