@@ -46,14 +46,31 @@ function Wordmark() {
 const navLinkClass =
   "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground";
 
+export function LiveStatus() {
+  const { isFetching, fetchedAt, live } = useLiveNews();
+  return (
+    <span className="eyebrow hidden items-center gap-1.5 text-muted-foreground sm:inline-flex">
+      <span
+        className={`h-2 w-2 rounded-full ${live ? "bg-bull" : "bg-muted-foreground"} ${isFetching ? "animate-pulse" : ""}`}
+        aria-hidden="true"
+      />
+      {live ? "Live" : "Cached"} · auto-refresh 2 min
+      {isFetching ? (
+        <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+      ) : fetchedAt ? (
+        <span className="hidden lg:inline">· {formatStamp(fetchedAt)}</span>
+      ) : null}
+    </span>
+  );
+}
+
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
         <Wordmark />
-        <span className="eyebrow hidden text-muted-foreground sm:inline">
-          Updated {formatDate(lastUpdated)}
-        </span>
+        <LiveStatus />
+
         <nav aria-label="Primary" className="ml-auto flex flex-wrap items-center gap-0.5">
           <Link to="/" className={navLinkClass} activeProps={{ className: "text-foreground bg-secondary" }} activeOptions={{ exact: true }}>
             Home
