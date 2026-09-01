@@ -111,9 +111,11 @@ export function SiteHeader() {
   );
 }
 
-export function BreakingTicker({ items }: { items: string[] }) {
-  if (items.length === 0) return null;
-  const loop = [...items, ...items];
+export function BreakingTicker() {
+  const { items } = useLiveNews();
+  const headlines = items.slice(0, 10);
+  if (headlines.length === 0) return null;
+  const loop = [...headlines, ...headlines];
   return (
     <div className="flex items-center gap-3 overflow-hidden border-b border-border bg-secondary py-2">
       <span className="eyebrow ml-4 flex shrink-0 items-center gap-1.5 rounded-sm bg-bear px-2 py-1 text-background">
@@ -121,9 +123,20 @@ export function BreakingTicker({ items }: { items: string[] }) {
       </span>
       <div className="relative flex-1 overflow-hidden">
         <ul className="marquee-track flex w-max gap-10 whitespace-nowrap text-sm text-foreground">
-          {loop.map((t, i) => (
-            <li key={i} aria-hidden={i >= items.length}>
-              {t}
+          {loop.map((item, i) => (
+            <li key={`${item.id}-${i}`} aria-hidden={i >= headlines.length}>
+              {item.external ? (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary"
+                >
+                  {item.title}
+                </a>
+              ) : (
+                item.title
+              )}
             </li>
           ))}
         </ul>
@@ -131,6 +144,7 @@ export function BreakingTicker({ items }: { items: string[] }) {
     </div>
   );
 }
+
 
 export function SiteFooter() {
   return (
