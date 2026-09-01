@@ -3,15 +3,18 @@ import { ArrowRight, Flame } from "lucide-react";
 
 import { ArticleCard } from "@/components/article-card";
 import { marketIcons } from "@/components/site-layout";
-import { SITE, markets, sortedArticles, trendingArticles, lastUpdated } from "@/data/news";
+import { SITE, markets } from "@/data/news";
+import { useLiveNews } from "@/hooks/use-live-news";
+import { liveNewsQuery } from "@/lib/live-news-query";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(liveNewsQuery),
   head: () => ({
     ...seo({
       title: "FinWorldNews — Breaking global financial news, live markets",
       description:
-        "Breaking financial news from US, European, Asia-Pacific, commodity, currency and crypto markets. Sourced, dated and fast to read.",
+        "Live breaking financial news from US, European, Asia-Pacific, commodity, currency and crypto markets. Auto-updating headlines every two minutes.",
       path: "/",
     }),
     scripts: [
@@ -22,13 +25,6 @@ export const Route = createFileRoute("/")({
           "@type": "CollectionPage",
           name: "FinWorldNews — Breaking global financial news",
           description: SITE.description,
-          dateModified: lastUpdated,
-          hasPart: sortedArticles.slice(0, 8).map((a) => ({
-            "@type": "NewsArticle",
-            headline: a.title,
-            datePublished: a.published,
-            url: `/news/${a.slug}`,
-          })),
         }),
       },
     ],
@@ -37,16 +33,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [lead, ...rest] = sortedArticles;
+  const { items } = useLiveNews();
+  const [lead, ...rest] = items;
   const secondary = rest.slice(0, 3);
-  const latest = rest.slice(3, 9);
+  const latest = rest.slice(3, 12);
 
   return (
     <>
       <section className="relative overflow-hidden border-b border-border">
         <div className="rule-grid pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="relative mx-auto max-w-6xl px-4 py-12 lg:py-16">
-          <p className="eyebrow text-primary">Global markets desk · Updated daily</p>
+          <p className="eyebrow text-primary">Global markets desk · Auto-updating every 2 minutes</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-extrabold text-balance lg:text-6xl">
             Breaking financial news from every major market
           </h1>
@@ -78,7 +75,7 @@ function Home() {
           <div className="lg:col-span-2">{lead ? <ArticleCard article={lead} featured /> : null}</div>
           <div className="grid gap-4">
             {secondary.map((a) => (
-              <ArticleCard key={a.slug} article={a} />
+              <ArticleCard key={a.id} article={a} />
             ))}
           </div>
         </div>
@@ -115,7 +112,7 @@ function Home() {
         </h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {latest.map((a) => (
-            <ArticleCard key={a.slug} article={a} />
+            <ArticleCard key={a.id} article={a} />
           ))}
         </div>
       </section>
@@ -125,7 +122,7 @@ function Home() {
           <h2 className="text-xl font-semibold">Why readers trust FinWorldNews</h2>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{SITE.editorialPolicy}</p>
           <p className="mt-3 text-sm text-muted-foreground">
-            {trendingArticles.length} stories are trending across {markets.length} market desks.{" "}
+            Headlines refresh automatically every two minutes across {markets.length} market desks.{" "}
             <Link to="/about" className="text-primary hover:underline">
               Read our editorial standards
             </Link>
