@@ -45,8 +45,18 @@ function parseFeed(
 
     const summary = tag(block, "description") || tag(block, "content:encoded");
 
+    const storySlug = (() => {
+      try {
+        const pathname = new URL(link).pathname.replace(/\/+$/, "");
+        const lastSegment = pathname.split("/").pop() ?? "";
+        return lastSegment.replace(/\.html?$/i, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || encodeURIComponent(link);
+      } catch {
+        return encodeURIComponent(link);
+      }
+    })();
+
     items.push({
-      id: link,
+      id: storySlug,
       title,
       summary: summary.length > 260 ? `${summary.slice(0, 257)}...` : summary,
       market,

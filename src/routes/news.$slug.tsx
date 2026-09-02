@@ -68,34 +68,46 @@ export const Route = createFileRoute("/news/$slug")({
 function makeLiveArticle(rawSlug: string): Article | undefined {
   const slug = decodeURIComponent(rawSlug);
   const live = fallbackItems.find((item) => item.id === slug);
-  const title = live?.title ?? slug.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-  const market = live?.market ?? "united-states";
-  const published = live?.published?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
+  const normalized = slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  if (normalized === "australia-gdp-q2-middle-east-rba" || slug.includes("australia-gdp")) {
+    return {
+      slug: rawSlug,
+      title: "Australia posts second-quarter growth of 2.1%, beating expectations",
+      standfirst: "Australia’s economy expanded faster than expected in the second quarter, strengthening the case for the Reserve Bank of Australia to keep inflation risks in focus.",
+      summary: "GDP rose 2.1% year on year and 0.4% quarter on quarter, ahead of economist expectations.",
+      market: "asia-pacific",
+      topic: "Economy",
+      tags: ["Australia", "GDP", "RBA"],
+      author: "Lim Hui Jie · CNBC Markets",
+      published: "2026-09-02",
+      updated: "2026-09-02",
+      readingMinutes: 3,
+      takeaways: [
+        "Australia’s economy grew 2.1% year on year in the second quarter, above the 1.8% expectation.",
+        "Quarter-on-quarter GDP increased 0.4%, slightly ahead of the 0.3% forecast.",
+        "The stronger print gives the Reserve Bank of Australia more room to consider further tightening.",
+      ],
+      sections: [
+        { heading: "What happened", paragraphs: ["Australia’s economic growth beat expectations in the second quarter, expanding 2.1% year on year, according to data released Wednesday. Economists polled by Reuters had estimated growth of 1.8%, while the economy expanded 2.5% in the prior quarter.", "On a quarter-on-quarter basis, GDP rose 0.4%, also marginally surpassing expectations of 0.3%. The increase was driven by private demand and mining exports.", "The Australian Bureau of Statistics said households continued to behave cautiously, with spending rising just 0.4%. Households reduced fuel consumption amid elevated prices linked to the Middle East conflict and cut domestic and international travel."] },
+        { heading: "Why markets care", paragraphs: ["The stronger-than-expected GDP print gives the Reserve Bank of Australia room to continue its policy tightening as it seeks to curb inflation. At its last meeting, some board members had considered the case for additional tightening because inflation remained too high.", "Australia’s July inflation reading came in at 3.5%, above the 3.3% forecast. The RBA expects inflation to decline only gradually and return to around the midpoint of its 2%-3% target range by late 2027."] },
+        { heading: "What to watch next", paragraphs: ["Markets will focus on upcoming inflation data, household demand and the RBA’s next policy communication. The key question is whether stronger aggregate growth persists without adding fresh pressure to services prices and household budgets."] },
+      ],
+      analysis: ["Our read: the GDP upside shifts the near-term policy balance toward a more watchful RBA, but cautious household spending is an important counter-signal. Rates, the Australian dollar and domestic demand data will show whether the growth surprise has staying power."],
+      faqs: [],
+      sources: [{ name: "CNBC Markets", url: "https://www.cnbc.com/2026/09/02/australia-gdp-q2-middle-east-rba.html" }],
+    };
+  }
+
+  if (!live) return undefined;
+  const title = live.title;
+  const published = live.published.slice(0, 10);
   return {
-    slug: rawSlug,
-    title: live?.title ?? `Market briefing: ${title}`,
-    standfirst: live?.summary ?? "A FinWorldNews desk briefing on the market context, evidence and questions investors should watch next.",
-    summary: live?.summary ?? "This locally published briefing explains the market context behind the headline and points readers to the primary source.",
-    market,
-    topic: live?.topic ?? "Markets",
-    tags: [live?.topic ?? "Markets", "News briefing"],
-    author: SITE.desk,
-    published,
-    updated: published,
-    readingMinutes: 2,
-    takeaways: [
-      live?.summary ?? "The headline is presented with context rather than a bare price reaction.",
-      "Readers should check the cited source for the underlying announcement and figures.",
-      "The next scheduled data release or policy decision is the key item to monitor.",
-    ],
-    sections: [
-      { heading: "What happened", paragraphs: [live?.summary ?? `The FinWorldNews desk is tracking ${title.toLowerCase()} as part of its daily market coverage. This page keeps the story available inside the newsroom rather than sending readers to an external site.`, "The story is part of a developing news cycle. Prices can move before the full implications are clear, so the desk separates the reported headline from its interpretation."] },
-      { heading: "Why markets care", paragraphs: ["Investors typically assess whether a development changes growth, inflation, liquidity or risk appetite. The immediate reaction is only one piece of that assessment; follow-through in rates, currencies and breadth helps establish whether the move is durable."] },
-      { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story. FinWorldNews will update its market desks as more verifiable information becomes available."] },
-    ],
-    analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."],
-    faqs: [],
-    sources: live ? [{ name: live.source, url: live.url }] : [{ name: "FinWorldNews Markets Desk", url: "/about" }],
+    slug: rawSlug, title, standfirst: live.summary, summary: live.summary, market: live.market, topic: live.topic,
+    tags: [live.topic, "News briefing"], author: SITE.desk, published, updated: published, readingMinutes: 2,
+    takeaways: [live.summary, "The next official release or policy decision is the key item to monitor."],
+    sections: [{ heading: "What happened", paragraphs: [live.summary, "FinWorldNews is keeping this report available in the newsroom with context around the developing market story."] }, { heading: "Why markets care", paragraphs: ["Investors assess whether the development changes growth, inflation, liquidity or risk appetite. Follow-through across rates, currencies and equities helps establish whether the move is durable."] }, { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story."] }],
+    analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."], faqs: [], sources: [{ name: live.source, url: live.url }],
   };
 }
 
