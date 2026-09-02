@@ -30,6 +30,9 @@ function NotFoundComponent() {
           >
             Go home
           </Link>
+          <Link to="/archive" className="ml-3 text-sm text-primary hover:underline">
+            Browse archive
+          </Link>
         </div>
       </div>
     </div>
@@ -128,7 +131,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-background">
       <head>
         <HeadContent />
       </head>

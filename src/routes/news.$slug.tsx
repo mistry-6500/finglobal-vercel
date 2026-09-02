@@ -79,20 +79,21 @@ function ArticlePage() {
       </nav>
 
       <h1 className="mt-3 text-3xl font-extrabold text-balance lg:text-4xl">{article.title}</h1>
-      <p className="mt-3 text-lg text-muted-foreground">{article.summary}</p>
+      <p className="mt-3 text-lg text-muted-foreground">{article.standfirst}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3 border-y border-border py-3">
-        <time dateTime={article.published} className="font-mono text-xs text-muted-foreground">
-          {formatDate(article.published)}
-        </time>
-        <span className="eyebrow text-primary">{article.topic}</span>
-        <SourceLink source={article.source} url={article.sourceUrl} />
+        <span className="text-sm font-medium">{article.author}</span>
+        <time dateTime={article.published} className="font-mono text-xs text-muted-foreground">Published {formatDate(article.published)}</time>
+        <time dateTime={article.updated} className="font-mono text-xs text-muted-foreground">Updated {formatDate(article.updated)}</time>
+        <span className="font-mono text-xs text-muted-foreground">{article.readingMinutes} min read</span>
       </div>
-
-      <div className="mt-6 space-y-4 text-base leading-relaxed">
-        {article.body.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
+      <div className="mt-6 rounded-lg border border-border bg-card p-5">
+        <h2 className="eyebrow text-primary">Key takeaways</h2>
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">{article.takeaways.map((item) => <li key={item}>{item}</li>)}</ul>
       </div>
+      <div className="mt-8 space-y-8 text-base leading-relaxed">
+        {article.sections.map((section) => <section key={section.heading}><h2 className="text-2xl font-bold">{section.heading}</h2>{section.paragraphs.map((p) => <p key={p} className="mt-3">{p}</p>)}</section>)}
+      </div>
+      <section className="mt-8 border-l-2 border-primary pl-4"><h2 className="eyebrow text-primary">Analysis</h2>{article.analysis.map((p) => <p key={p} className="mt-3 text-muted-foreground">{p}</p>)}</section>
 
       <p className="mt-8 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
         Market news for information only — not investment advice. Figures are quoted as published

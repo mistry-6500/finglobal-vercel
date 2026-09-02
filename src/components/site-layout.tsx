@@ -83,6 +83,9 @@ export function SiteHeader() {
               <Flame className="h-3.5 w-3.5" aria-hidden="true" /> Trending
             </span>
           </Link>
+          <Link to="/archive" className={navLinkClass} activeProps={{ className: "text-foreground bg-secondary" }}>
+            Archive
+          </Link>
           <Link to="/about" className={navLinkClass} activeProps={{ className: "text-foreground bg-secondary" }}>
             About
           </Link>
@@ -125,18 +128,9 @@ export function BreakingTicker() {
         <ul className="marquee-track flex w-max gap-10 whitespace-nowrap text-sm text-foreground">
           {loop.map((item, i) => (
             <li key={`${item.id}-${i}`} aria-hidden={i >= headlines.length}>
-              {item.external ? (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-primary"
-                >
-                  {item.title}
-                </a>
-              ) : (
-                item.title
-              )}
+              <Link to="/news/$slug" params={{ slug: item.url.startsWith("/news/") ? item.url.slice(6) : item.id }} className="hover:text-primary">
+                {item.title}
+              </Link>
             </li>
           ))}
         </ul>
@@ -181,6 +175,11 @@ export function SiteFooter() {
             <li>
               <Link to="/markets" className="text-muted-foreground hover:text-primary">
                 All markets
+              </Link>
+            </li>
+            <li>
+              <Link to="/archive" className="text-muted-foreground hover:text-primary">
+                News archive
               </Link>
             </li>
             <li>

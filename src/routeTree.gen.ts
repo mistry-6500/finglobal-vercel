@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as MarketsIndexRouteImport } from './routes/markets.index'
 import { Route as MarketsMarketRouteImport } from './routes/markets.$market'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchiveRoute = ArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrendingRoute = TrendingRouteImport.update({
@@ -50,6 +56,7 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/trending': typeof TrendingRoute
   '/markets/$market': typeof MarketsMarketRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/trending': typeof TrendingRoute
   '/markets/$market': typeof MarketsMarketRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/trending': typeof TrendingRoute
   '/markets/$market': typeof MarketsMarketRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/archive'
     | '/trending'
     | '/markets/$market'
     | '/news/$slug'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/archive'
     | '/trending'
     | '/markets/$market'
     | '/news/$slug'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/archive'
     | '/trending'
     | '/markets/$market'
     | '/news/$slug'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ArchiveRoute: typeof ArchiveRoute
   TrendingRoute: typeof TrendingRoute
   MarketsMarketRoute: typeof MarketsMarketRoute
   NewsSlugRoute: typeof NewsSlugRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive': {
+      id: '/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof ArchiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trending': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ArchiveRoute: ArchiveRoute,
   TrendingRoute: TrendingRoute,
   MarketsMarketRoute: MarketsMarketRoute,
   NewsSlugRoute: NewsSlugRoute,

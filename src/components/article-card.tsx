@@ -1,23 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, Zap, ArrowUpRight } from "lucide-react";
+import { Flame, Zap } from "lucide-react";
 
 import { formatStamp, marketLabel, relativeTime, type NewsItem } from "@/lib/live-news";
 
 function Headline({ item, className }: { item: NewsItem; className: string }) {
   const linkClass = `${className} after:absolute after:inset-0 after:content-['']`;
-  if (item.external) {
-    return (
-      <a href={item.url} target="_blank" rel="noopener noreferrer" className={linkClass}>
-        {item.title}
-        <ArrowUpRight className="ml-1 inline h-4 w-4 align-text-top text-muted-foreground" aria-hidden="true" />
-      </a>
-    );
-  }
-  return (
-    <Link to="/news/$slug" params={{ slug: item.url.replace("/news/", "") }} className={linkClass}>
-      {item.title}
-    </Link>
-  );
+  const slug = item.url.startsWith("/news/") ? item.url.slice(6) : item.id;
+  return <Link to="/news/$slug" params={{ slug }} className={linkClass}>{item.title}</Link>;
 }
 
 export function ArticleCard({
