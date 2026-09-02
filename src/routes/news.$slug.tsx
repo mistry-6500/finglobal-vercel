@@ -10,12 +10,14 @@ import {
   getMarket,
   type Article,
 } from "@/data/news";
-import { fallbackItems } from "@/lib/live-news";
+import { fallbackItems, type NewsItem } from "@/lib/live-news";
+import { getLiveNews } from "@/lib/live-news.functions";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/news/$slug")({
-  loader: ({ params }) => {
-    const article = getArticle(params.slug) ?? makeLiveArticle(params.slug);
+  loader: async ({ params }) => {
+    const liveResult = await getLiveNews();
+    const article = getArticle(params.slug) ?? makeLiveArticle(params.slug, liveResult.items);
     if (!article) throw notFound();
     const market = getMarket(article.market)!;
     const related = articlesByMarket(article.market)
@@ -65,9 +67,18 @@ export const Route = createFileRoute("/news/$slug")({
   notFoundComponent: StoryNotFound,
 });
 
-function makeLiveArticle(rawSlug: string): Article | undefined {
+function paragraphize(text: string) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (!clean) return ["The FinWorldNews desk is monitoring this developing story."];
+  const sentences = clean.match(/[^.!?]+[.!?]+/g)?.map((part) => part.trim()).filter(Boolean) ?? [clean];
+  if (sentences.length <= 2) return [clean];
+  const size = Math.ceil(sentences.length / 2);
+  return [sentences.slice(0, size).join(" "), sentences.slice(size).join(" ")];
+}
+
+function makeLiveArticle(rawSlug: string, liveItems: NewsItem[] = fallbackItems): Article | undefined {
   const slug = decodeURIComponent(rawSlug);
-  const live = fallbackItems.find((item) => item.id === slug);
+  const live = liveItems.find((item) => item.id === slug || item.id === rawSlug);
   const normalized = slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   if (normalized === "australia-gdp-q2-middle-east-rba" || slug.includes("australia-gdp")) {
@@ -106,7 +117,7 @@ function makeLiveArticle(rawSlug: string): Article | undefined {
     slug: rawSlug, title, standfirst: live.summary, summary: live.summary, market: live.market, topic: live.topic,
     tags: [live.topic, "News briefing"], author: SITE.desk, published, updated: published, readingMinutes: 2,
     takeaways: [live.summary, "The next official release or policy decision is the key item to monitor."],
-    sections: [{ heading: "What happened", paragraphs: [live.summary, "FinWorldNews is keeping this report available in the newsroom with context around the developing market story."] }, { heading: "Why markets care", paragraphs: ["Investors assess whether the development changes growth, inflation, liquidity or risk appetite. Follow-through across rates, currencies and equities helps establish whether the move is durable."] }, { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story."] }],
+    sections: [{ heading: "What happened", paragraphs: paragraphize(live.summary) }, { heading: "Why markets care", paragraphs: ["Investors assess whether the development changes growth, inflation, liquidity or risk appetite. Follow-through across rates, currencies and equities helps establish whether the move is durable."] }, { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story. The FinWorldNews desk will keep this article available as the story develops."] }],
     analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."], faqs: [], sources: [{ name: live.source, url: live.url }],
   };
 }
