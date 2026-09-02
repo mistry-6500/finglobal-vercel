@@ -2,10 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { Flame, Zap } from "lucide-react";
 
 import { formatStamp, marketLabel, relativeTime, type NewsItem } from "@/lib/live-news";
+import type { Article } from "@/data/news";
 
-function Headline({ item, className }: { item: NewsItem; className: string }) {
+type CardItem = NewsItem | Article;
+
+function Headline({ item, className }: { item: CardItem; className: string }) {
   const linkClass = `${className} after:absolute after:inset-0 after:content-['']`;
-  const slug = item.url.startsWith("/news/") ? item.url.slice(6) : item.id;
+  const slug = "url" in item && item.url.startsWith("/news/") ? item.url.slice(6) : encodeURIComponent(item.id ?? item.slug);
   return <Link to="/news/$slug" params={{ slug }} className={linkClass}>{item.title}</Link>;
 }
 
@@ -62,7 +65,7 @@ export function ArticleCard({
         <span aria-hidden="true">·</span>
         <span>{relativeTime(article.published)}</span>
         <span aria-hidden="true">·</span>
-        <span className="text-primary">{article.source}</span>
+        <span className="text-primary">{"source" in article ? article.source : article.author}</span>
       </div>
     </article>
   );

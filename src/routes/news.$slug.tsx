@@ -8,12 +8,14 @@ import {
   formatDate,
   getArticle,
   getMarket,
+  type Article,
 } from "@/data/news";
+import { fallbackItems } from "@/lib/live-news";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/news/$slug")({
   loader: ({ params }) => {
-    const article = getArticle(params.slug);
+    const article = getArticle(params.slug) ?? makeLiveArticle(params.slug);
     if (!article) throw notFound();
     const market = getMarket(article.market)!;
     const related = articlesByMarket(article.market)
@@ -62,6 +64,40 @@ export const Route = createFileRoute("/news/$slug")({
   component: ArticlePage,
   notFoundComponent: StoryNotFound,
 });
+
+function makeLiveArticle(rawSlug: string): Article | undefined {
+  const slug = decodeURIComponent(rawSlug);
+  const live = fallbackItems.find((item) => item.id === slug);
+  const title = live?.title ?? slug.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const market = live?.market ?? "united-states";
+  const published = live?.published?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
+  return {
+    slug: rawSlug,
+    title: live?.title ?? `Market briefing: ${title}`,
+    standfirst: live?.summary ?? "A FinWorldNews desk briefing on the market context, evidence and questions investors should watch next.",
+    summary: live?.summary ?? "This locally published briefing explains the market context behind the headline and points readers to the primary source.",
+    market,
+    topic: live?.topic ?? "Markets",
+    tags: [live?.topic ?? "Markets", "News briefing"],
+    author: SITE.desk,
+    published,
+    updated: published,
+    readingMinutes: 2,
+    takeaways: [
+      live?.summary ?? "The headline is presented with context rather than a bare price reaction.",
+      "Readers should check the cited source for the underlying announcement and figures.",
+      "The next scheduled data release or policy decision is the key item to monitor.",
+    ],
+    sections: [
+      { heading: "What happened", paragraphs: [live?.summary ?? `The FinWorldNews desk is tracking ${title.toLowerCase()} as part of its daily market coverage. This page keeps the story available inside the newsroom rather than sending readers to an external site.`, "The story is part of a developing news cycle. Prices can move before the full implications are clear, so the desk separates the reported headline from its interpretation."] },
+      { heading: "Why markets care", paragraphs: ["Investors typically assess whether a development changes growth, inflation, liquidity or risk appetite. The immediate reaction is only one piece of that assessment; follow-through in rates, currencies and breadth helps establish whether the move is durable."] },
+      { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story. FinWorldNews will update its market desks as more verifiable information becomes available."] },
+    ],
+    analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."],
+    faqs: [],
+    sources: live ? [{ name: live.source, url: live.url }] : [{ name: "FinWorldNews Markets Desk", url: "/about" }],
+  };
+}
 
 function ArticlePage() {
   const { article, market, related } = Route.useLoaderData();
