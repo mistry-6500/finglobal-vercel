@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Flame } from "lucide-react";
 
+import { AdUnit } from "@/components/ad-unit";
 import { ArticleCard } from "@/components/article-card";
 import { marketIcons } from "@/components/site-layout";
 import { SITE, markets } from "@/data/news";
@@ -104,6 +105,10 @@ function Home() {
             );
           })}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-4" aria-label="Advertisement">
+        <AdUnit />
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-4" aria-labelledby="latest">

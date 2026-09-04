@@ -2,14 +2,17 @@ import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 
 import { ArticleCard } from "@/components/article-card";
 import { marketIcons } from "@/components/site-layout";
-import { articlesByMarket, getMarket, markets, type MarketSlug } from "@/data/news";
+import { articlesByMarket, getMarket, markets, marketName, type MarketSlug } from "@/data/news";
+import { getLiveNews } from "@/lib/live-news.functions";
+import type { NewsItem } from "@/lib/live-news";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/markets/$market")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const market = getMarket(params.market);
     if (!market) throw notFound();
-    return { market, articles: articlesByMarket(market.slug) };
+    const liveItems = (await getLiveNews()).items.filter((item) => item.market === market.slug);
+    return { market, articles: articlesByMarket(market.slug), liveItems };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -46,7 +49,7 @@ export const Route = createFileRoute("/markets/$market")({
 });
 
 function MarketPage() {
-  const { market, articles } = Route.useLoaderData();
+  const { market, articles, liveItems } = Route.useLoaderData();
   const Icon = marketIcons[market.slug as MarketSlug];
 
   return (
@@ -79,6 +82,16 @@ function MarketPage() {
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((a) => (
             <ArticleCard key={a.slug} article={a} />
+          ))}
+          {liveItems.map((item: NewsItem) => (
+            <article key={`live-${item.id}`} className="rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary">
+              <p className="eyebrow text-primary">{marketName(item.market)} · {item.topic}</p>
+              <h3 className="mt-3 text-xl font-semibold text-balance">
+                <Link to="/news/$slug" params={{ slug: item.id }} className="hover:text-primary">{item.title}</Link>
+              </h3>
+              <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.summary}</p>
+              <Link to="/news/$slug" params={{ slug: item.id }} className="mt-5 inline-flex text-sm font-semibold text-primary hover:underline">Read full briefing</Link>
+            </article>
           ))}
         </div>
       </section>
