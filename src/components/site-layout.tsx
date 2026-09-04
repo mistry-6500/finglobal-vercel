@@ -16,6 +16,7 @@ import type { ComponentType } from "react";
 import { SITE, markets, type MarketSlug } from "@/data/news";
 import { useLiveNews } from "@/hooks/use-live-news";
 import { formatStamp } from "@/lib/live-news";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const marketIcons: Record<MarketSlug, ComponentType<{ className?: string }>> = {
   "united-states": Landmark,
@@ -72,6 +73,7 @@ export function SiteHeader() {
         <LiveStatus />
 
         <nav aria-label="Primary" className="ml-auto flex flex-wrap items-center gap-0.5">
+          <ThemeToggle />
           <Link to="/" className={navLinkClass} activeProps={{ className: "text-foreground bg-secondary" }} activeOptions={{ exact: true }}>
             Home
           </Link>

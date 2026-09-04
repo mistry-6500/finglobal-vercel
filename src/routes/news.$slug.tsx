@@ -1,5 +1,6 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 
+import { AdUnit } from "@/components/ad-unit";
 import { ArticleCard } from "@/components/article-card";
 import { SourceLink } from "@/components/site-layout";
 import {
@@ -117,7 +118,11 @@ function makeLiveArticle(rawSlug: string, liveItems: NewsItem[] = fallbackItems)
     slug: rawSlug, title, standfirst: live.summary, summary: live.summary, market: live.market, topic: live.topic,
     tags: [live.topic, "News briefing"], author: SITE.desk, published, updated: published, readingMinutes: 2,
     takeaways: [live.summary, "The next official release or policy decision is the key item to monitor."],
-    sections: [{ heading: "What happened", paragraphs: paragraphize(live.summary) }, { heading: "Why markets care", paragraphs: ["Investors assess whether the development changes growth, inflation, liquidity or risk appetite. Follow-through across rates, currencies and equities helps establish whether the move is durable."] }, { heading: "What to watch next", paragraphs: ["Watch the next official release, company filing or policy communication connected to this story. The FinWorldNews desk will keep this article available as the story develops."] }],
+    sections: [
+    { heading: "What happened", paragraphs: [paragraphize(live.summary)[0], `The report centers on ${live.title.toLowerCase()}. The FinWorldNews desk is separating the confirmed headline from the market reaction so readers can follow the facts as the story develops.`] },
+    { heading: "Why markets care", paragraphs: [`This update matters because it can influence expectations around ${live.topic.toLowerCase()}, positioning and risk appetite. Traders will compare the initial reaction with moves in related assets rather than treating one price move as a conclusion.`] },
+    { heading: "What to watch next", paragraphs: [`The next signal is likely to come from an official release, company filing or policy communication tied to ${live.topic.toLowerCase()}. Follow-through in the relevant market will help show whether this is a lasting change or a short-lived response.`] },
+  ],
     analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."], faqs: [], sources: [{ name: live.source, url: live.url }],
   };
 }
@@ -158,6 +163,10 @@ function ArticlePage() {
         Market news for information only — not investment advice. Figures are quoted as published
         by the cited source.
       </p>
+
+      <div className="mt-10" aria-label="Advertisement">
+        <AdUnit />
+      </div>
 
       {related.length > 0 ? (
         <section aria-labelledby="related" className="mt-12">
