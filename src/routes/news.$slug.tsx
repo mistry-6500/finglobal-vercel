@@ -68,13 +68,28 @@ export const Route = createFileRoute("/news/$slug")({
   notFoundComponent: StoryNotFound,
 });
 
-function paragraphize(text: string) {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (!clean) return ["The FinWorldNews desk is monitoring this developing story."];
-  const sentences = clean.match(/[^.!?]+[.!?]+/g)?.map((part) => part.trim()).filter(Boolean) ?? [clean];
-  if (sentences.length <= 2) return [clean];
-  const size = Math.ceil(sentences.length / 2);
-  return [sentences.slice(0, size).join(" "), sentences.slice(size).join(" ")];
+function extractSubject(title: string, topic: string) {
+  const subject = title.replace(/^(breaking|update|latest):?\s*/i, "").replace(/[.!?].*$/, "").trim();
+  return subject || `${topic} developments`;
+}
+
+function makeStoryCopy(live: NewsItem) {
+  const subject = extractSubject(live.title, live.topic);
+  const summary = live.summary.replace(/\s+/g, " ").trim() || `The latest update concerns ${subject.toLowerCase()}.`;
+  const market = live.market === "united-states" ? "US assets" : live.market === "asia-pacific" ? "Asia-Pacific assets" : `${live.topic.toLowerCase()} markets`;
+  return {
+    takeaways: [
+      `${subject} is the central development in this ${live.topic.toLowerCase()} update.`,
+      `The reported details point to a change in expectations for ${market}.`,
+      `Confirmation from the next official release or policy communication will determine whether the move lasts.`,
+    ],
+    sections: [
+      { heading: "What happened", paragraphs: [summary, `The available report focuses on ${subject.toLowerCase()}, with the source describing the immediate development and its timing. The FinWorldNews desk is keeping the report distinct from interpretation while more detail emerges.`] },
+      { heading: "Why markets care", paragraphs: [`The story matters for ${market} because it may alter assumptions about growth, inflation, supply, policy or positioning. The relevant reaction is broader than a single price: investors will compare rates, currencies, equities and related instruments for confirmation.`, `The size and direction of that response will depend on whether the development changes the underlying outlook or simply adds short-term uncertainty.`] },
+      { heading: "What to watch next", paragraphs: [`The next useful signal is specific to this story: follow-up data, an official statement, a company filing or a second source that confirms the reported detail. Traders will also watch whether related ${live.topic.toLowerCase()} assets hold their initial move.`] },
+    ],
+    analysis: [`Our read: ${subject} is an important new input, but not a complete market thesis. The strongest confirmation would come from independent data and sustained cross-asset follow-through rather than the first headline reaction.`],
+  };
 }
 
 function makeLiveArticle(rawSlug: string, liveItems: NewsItem[] = fallbackItems): Article | undefined {
@@ -114,16 +129,13 @@ function makeLiveArticle(rawSlug: string, liveItems: NewsItem[] = fallbackItems)
   if (!live) return undefined;
   const title = live.title;
   const published = live.published.slice(0, 10);
+  const copy = makeStoryCopy(live);
   return {
     slug: rawSlug, title, standfirst: live.summary, summary: live.summary, market: live.market, topic: live.topic,
-    tags: [live.topic, "News briefing"], author: SITE.desk, published, updated: published, readingMinutes: 2,
-    takeaways: [live.summary, "The next official release or policy decision is the key item to monitor."],
-    sections: [
-    { heading: "What happened", paragraphs: [paragraphize(live.summary)[0], `The report centers on ${live.title.toLowerCase()}. The FinWorldNews desk is separating the confirmed headline from the market reaction so readers can follow the facts as the story develops.`] },
-    { heading: "Why markets care", paragraphs: [`This update matters because it can influence expectations around ${live.topic.toLowerCase()}, positioning and risk appetite. Traders will compare the initial reaction with moves in related assets rather than treating one price move as a conclusion.`] },
-    { heading: "What to watch next", paragraphs: [`The next signal is likely to come from an official release, company filing or policy communication tied to ${live.topic.toLowerCase()}. Follow-through in the relevant market will help show whether this is a lasting change or a short-lived response.`] },
-  ],
-    analysis: ["Our read: treat the first move as information, not a conclusion. Confirmation from primary data and cross-asset pricing matters more than a single headline."], faqs: [], sources: [{ name: live.source, url: live.url }],
+    tags: [live.topic, live.market], author: SITE.desk, published, updated: published, readingMinutes: 3,
+    takeaways: copy.takeaways,
+    sections: copy.sections,
+    analysis: copy.analysis, faqs: [], sources: [{ name: live.source, url: live.url }],
   };
 }
 
