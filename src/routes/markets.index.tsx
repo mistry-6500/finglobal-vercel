@@ -48,7 +48,7 @@ function MarketsIndex() {
               </div>
               <p className="mt-2 text-sm text-muted-foreground">{m.description}</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                {items.slice(0, 2).map((a) => (
+                {items.map((a) => (
                   <ArticleCard key={a.slug} article={a} />
                 ))}
               </div>
